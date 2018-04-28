@@ -1,0 +1,54 @@
+BH_LOG_MW <- function(eta = 0.5, start_capital = 1, mu =.08, sigma = .2, interest =.04, nperiod  =  3){
+         
+     zahler <- start_capital * (eta * exp(mu * nperiod) + (1-eta) * exp(interest * nperiod))^2
+		  
+     nenner <- sqrt((eta * exp(mu * nperiod) + (1-eta) * exp(interest * nperiod))^2 + 
+	                     eta^2 * exp(2 * mu * nperiod) * (exp(nperiod * sigma^2) - 1))
+     
+     return(log(zahler / nenner))		   
+}
+
+BH_LOG_SD <- function(eta = 0.5, mu =.08, sigma = .2, interest =.04, nperiod  =  3){
+	
+	 zahler <- eta^2 * exp (2 * mu * nperiod) * (exp(nperiod * sigma^2) - 1)
+     nenner <- ((eta * exp(mu * nperiod) + (1 - eta)* exp(interest * nperiod))^2) 
+     return(sqrt(log(zahler / nenner + 1)))
+}	 
+
+FM_LOG_MW <- function(eta = 0.5, start_capital = 1, mu =.08, sigma = .2, interest =.04, nperiod  =  3){
+					  
+	 zahler <- start_capital * exp(nperiod * (eta * mu + (1 - eta) * interest))
+     nenner <- exp(.5 * nperiod * eta^2 * sigma^2)
+     return(log(zahler / nenner))
+}
+
+FM_LOG_SD <- function(eta = 0.5, sigma = .2, nperiod  =  3) return(sqrt(nperiod) * eta * sigma)
+
+
+giter  <- seq(qlnorm(.001, BH_LOG_MW(), BH_LOG_SD()),qlnorm(.999, BH_LOG_MW(), BH_LOG_SD()), le = 10001)
+
+
+par(mfrow = c(1, 2))
+
+x11(960,960)
+plot(giter , dlnorm(giter , FM_LOG_MW(), FM_LOG_SD()), col = "black", type = "l", 
+font.lab  = 3, font.main = 8, font.axis  = 2 ,ylab = "Dichte", xlab = "Endwert", 
+main = "Vergleich der Dichten des Endwertes von einem Euro\n in drei Jahren")
+lines(giter , dlnorm(giter , BH_LOG_MW(), BH_LOG_SD()), col = "yellow3")
+legend("topright", c("Buy-and-Hold", "Fixed-Mix mit eta = 0,5"), col = c("yellow3", "black"), 
+lty = 1, title = "Anlagestrategien", bg = "white", text.font = 4)
+
+
+	  
+	  
+	  
+	  
+	  
+	  
+x11(500,500)
+plot(giter , plnorm(giter , FM_LOG_MW(), FM_LOG_SD()), col = "black", type = "l", 
+font.lab  = 3, font.main = 8, font.axis  = 2 ,ylab = "Verteilung", xlab = "Endwert", 
+main = "Vergleich der Verteilungen des Endwertes von einem Euro\n in drei Jahren")
+lines(giter , plnorm(giter , BH_LOG_MW(), BH_LOG_SD()), col = "yellow3")
+legend("bottomright", c("Buy-and-Hold", "Fixed-Mix mit eta = 0,5"), col = c("yellow3", "black"), 
+lty = 1, title = "Anlagestrategien", bg = "white", text.font = 4)
